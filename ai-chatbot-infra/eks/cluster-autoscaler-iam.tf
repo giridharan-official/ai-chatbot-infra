@@ -37,7 +37,7 @@ resource "aws_iam_role" "cluster_autoscaler" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.ap-south-1.amazonaws.com/id/3A84B43A2BDA650538F6180FAA105463"
+          Federated = module.eks.oidc_provider_arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
