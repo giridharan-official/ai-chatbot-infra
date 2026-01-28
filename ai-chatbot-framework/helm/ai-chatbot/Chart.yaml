@@ -1,0 +1,25 @@
+apiVersion: v2
+name: ai-chatbot
+version: 0.1.0
+
+dependencies:
+  - name: backend
+    version: 0.1.0
+    repository: "file://charts/backend"
+
+  - name: frontend
+    version: 0.1.0
+    repository: "file://charts/frontend"
+
+  - name: ml
+    version: 0.1.0
+    repository: "file://charts/ml"
+
+  - name: worker
+    version: 0.1.0
+    repository: "file://charts/worker"
+
+  - name: mongodb
+    version: 15.6.5
+    repository: https://charts.bitnami.com/bitnami
+    condition: mongodb.enabled

@@ -1,0 +1,15 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Terraform crash logs
+crash.log
+
+# Override files
+*.tfvars
+*.tfvars.json
+
+# CLI config
+.terraformrc
+terraform.rc

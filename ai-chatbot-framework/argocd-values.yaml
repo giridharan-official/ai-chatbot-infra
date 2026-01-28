@@ -1,0 +1,40 @@
+global:
+  image:
+    tag: v2.10.4
+
+configs:
+  params:
+    server.insecure: "true"
+
+server:
+  replicas: 2
+  extraArgs:
+    - --insecure
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 2
+  copyutil:
+    enabled: false
+
+
+
+applicationSet:
+  replicas: 1
+
+notifications:
+  enabled: true
+
+dex:
+  enabled: false
+
+redis:
+  enabled: false
+
+redis-ha:
+  enabled: false
+
+redisSecretInit:
+  enabled: false

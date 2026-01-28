@@ -1,0 +1,56 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ml.fullname" . }}
+  labels:
+    app: {{ include "ml.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "ml.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ml.name" . }}
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+
+      containers:
+        - name: ml
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+
+          envFrom:
+            - configMapRef:
+                name: {{ $.Release.Name }}-app-config
+            {{- if .Values.secrets.enabled }}
+            - secretRef:
+                name: {{ .Values.secrets.name }}
+            {{- end }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.livenessPath }}
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.health.livenessInitialDelay }}
+            periodSeconds: {{ .Values.health.livenessPeriod }}
+            timeoutSeconds: {{ .Values.health.timeout }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.readinessPath }}
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.health.readinessInitialDelay }}
+            periodSeconds: {{ .Values.health.readinessPeriod }}
+            timeoutSeconds: {{ .Values.health.timeout }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}

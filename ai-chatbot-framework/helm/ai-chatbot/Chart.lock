@@ -1,0 +1,18 @@
+dependencies:
+- name: backend
+  repository: file://charts/backend
+  version: 0.1.0
+- name: frontend
+  repository: file://charts/frontend
+  version: 0.1.0
+- name: ml
+  repository: file://charts/ml
+  version: 0.1.0
+- name: worker
+  repository: file://charts/worker
+  version: 0.1.0
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 15.6.5
+digest: sha256:d30271f767c98c2e61fa91a1ba2376f5c15a60a44fcfef27edc3c6cbbabc9a9f
+generated: "2026-01-27T04:26:49.306564918Z"

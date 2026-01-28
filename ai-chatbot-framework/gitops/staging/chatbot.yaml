@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-chatbot-staging
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: staging
+
+  source:
+    repoURL: https://github.com/<your-org>/ai-chatbot-framework.git
+    targetRevision: main
+    path: helm/ai-chatbot
+    helm:
+      valueFiles:
+        - ../../gitops/staging/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

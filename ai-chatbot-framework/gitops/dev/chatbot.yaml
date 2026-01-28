@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-chatbot-dev
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: dev
+
+  source:
+    repoURL: https://github.com/<your-org>/ai-chatbot-framework.git
+    targetRevision: main
+    path: helm/ai-chatbot
+    helm:
+      valueFiles:
+        - ../../gitops/dev/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

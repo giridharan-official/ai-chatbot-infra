@@ -1,0 +1,234 @@
+global:
+  environment: dev
+  logLevel: info
+
+backend:
+  enabled: true
+
+  image:
+    repository: your-ecr-repo/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  containerPort: 8000
+
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  
+  health:
+    livenessPath: /health/live
+    readinessPath: /health/ready
+
+    livenessInitialDelay: 30
+    readinessInitialDelay: 10
+
+    livenessPeriod: 10
+    readinessPeriod: 5
+
+    timeout: 2
+    failureThreshold: 3
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+
+  secrets:
+    enabled: true
+    name: backend-secrets
+
+  externalMongo:
+    enabled: true
+    passwordSecret:
+      name: mongodb-secrets
+      key: password
+
+
+frontend:
+  enabled: true
+
+  image:
+    repository: your-ecr-repo/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  containerPort: 3000
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "250m"
+      memory: "512Mi"
+
+  health:
+    livenessPath: /
+    readinessPath: /
+
+    livenessInitialDelay: 20
+    readinessInitialDelay: 5
+
+    livenessPeriod: 15
+    readinessPeriod: 5
+
+    timeout: 2
+    failureThreshold: 3
+
+
+ml:
+  enabled: true
+
+  image:
+    repository: your-ecr-repo/ml
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  containerPort: 9000
+
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+
+  nodeSelector:
+    workload: ml
+
+  health:
+    livenessPath: /health/live
+    readinessPath: /health/ready
+
+    livenessInitialDelay: 60
+    readinessInitialDelay: 20
+
+    livenessPeriod: 15
+    readinessPeriod: 10
+
+    timeout: 3
+    failureThreshold: 3
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 60
+  
+  secrets:
+    enabled: true
+    name: ml-secrets
+
+
+worker:
+  enabled: true
+
+  image:
+    repository: your-ecr-repo/worker
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+
+  nodeSelector:
+    workload: general
+
+
+secrets:
+  backend:
+    name: backend-secrets
+  ml:
+    name: ml-secrets
+
+
+
+
+ingress:
+  enabled: true
+
+  className: alb
+
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:123456789012:certificate/REPLACE_ME
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=true
+
+  hosts:
+    - host: chatbot.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+          servicePort: 3000
+        - path: /api
+          pathType: Prefix
+          serviceName: backend
+          servicePort: 8000
+        - path: /ml
+          pathType: Prefix
+          serviceName: ml
+          servicePort: 9000
+
+
+
+mongodb:
+  enabled: false   # dev=true, prod=false
+
+  auth:
+    enabled: true
+    rootUser: admin
+    rootPassword: ""
+    username: chatbot
+    password: ""
+    database: chatbotdb
+
+  architecture: standalone
+  persistence:
+    enabled: true
+    size: 10Gi
+
+
+
+
+externalMongo:
+  enabled: false
+  host: ""
+  port: 27017
+  database: ""
+  username: ""
+  passwordSecret:
+    name: ""
+    key: ""
+
