@@ -1,0 +1,95 @@
+name: Backend CI/CD - DEBUG
+
+on:
+  push:
+    branches: [main, develop]
+    paths: 
+      - ai-chatbot-framework/**
+      - .github/workflows/ci-backend-debug.yaml
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - ai-chatbot-framework/**
+
+env:
+  AWS_REGION: ap-south-1
+  REGISTRY: 235494787667.dkr.ecr.ap-south-1.amazonaws.com
+  IMAGE_NAME: backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check if Dockerfile exists
+        id: check_dockerfile
+        run: |
+          if [ -f "ai-chatbot-framework/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "path=ai-chatbot-framework" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure AWS credentials
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::235494787667:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Debug - Check AWS credentials
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "AWS Account ID:"
+          aws sts get-caller-identity
+          echo ""
+          echo "Current IAM User/Role:"
+          aws iam get-user 2>/dev/null || aws sts get-caller-identity --query Arn
+          echo ""
+          echo "Checking ECR permissions:"
+          aws ecr describe-repositories --region ap-south-1
+
+      - name: Login to Amazon ECR
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Debug - Check Docker login
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "Checking Docker credentials:"
+          cat ~/.docker/config.json 2>/dev/null || echo "No docker config found"
+          echo ""
+          echo "Testing docker access to ECR:"
+          docker info
+          echo ""
+          echo "ECR Registry: ${{ steps.login_ecr.outputs.registry }}"
+
+      - name: Build Docker image
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ai-chatbot-framework
+
+      - name: Debug - Check built images
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "Built Docker images:"
+          docker images | grep backend
+
+      - name: Push to ECR
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "Pushing latest tag..."
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          
+          echo "Pushing SHA tag..."
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
