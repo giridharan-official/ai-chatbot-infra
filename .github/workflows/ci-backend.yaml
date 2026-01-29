@@ -112,7 +112,7 @@ jobs:
           docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           
-          echo "✅ images pushed successfully"
+          echo "✅ Images pushed successfully"
           echo "✅ Latest: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest"
           echo "✅ Tagged: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
