@@ -89,23 +89,30 @@ jobs:
       - name: Login to Amazon ECR
         if: steps.check_dockerfile.outputs.exists == 'true'
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+            docker login --username AWS --password-stdin 235494787667.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          
+          echo "registry=235494787667.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
+          echo "✅ Successfully logged in to ECR"
 
-      - name: Build, tag, and push image
+      - name: Build Docker image
         if: steps.check_dockerfile.outputs.exists == 'true'
-        env:
-          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $REGISTRY/${{ env.IMAGE_NAME }}:latest \
-            -t $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG \
+            -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             ${{ steps.check_dockerfile.outputs.path }}
           
-          docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
-          docker push $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          echo "✅ Docker image built successfully"
+
+      - name: Push image to ECR
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           
-          echo "✅ Image pushed: $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
+          echo "✅ Image pushed: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       - name: Update GitOps repo - Dev
         if: steps.check_dockerfile.outputs.exists == 'true'
