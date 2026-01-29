@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 python:3.12.7-slim
+FROM python:3.11
 
 WORKDIR /usr/src/app
 
