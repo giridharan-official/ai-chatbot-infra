@@ -42,8 +42,8 @@ resource "aws_iam_role" "cluster_autoscaler" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "oidc.eks.ap-south-1.amazonaws.com/id/3A84B43A2BDA650538F6180FAA105463:sub" = "system:serviceaccount:kube-system:cluster-autoscaler"
-            "oidc.eks.ap-south-1.amazonaws.com/id/3A84B43A2BDA650538F6180FAA105463:aud" = "sts.amazonaws.com"
+            "${replace(module.eks.oidc_provider, "https://", "")}:sub" = "system:serviceaccount:kube-system:cluster-autoscaler"
+            "${replace(module.eks.oidc_provider, "https://", "")}:aud" = "sts.amazonaws.com"
           }
         }
       }
