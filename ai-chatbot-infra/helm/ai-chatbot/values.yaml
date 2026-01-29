@@ -2,6 +2,9 @@ global:
   environment: dev
   logLevel: info
 
+imagePullSecrets:
+  - name: ecr-registry-secret
+  
 backend:
   enabled: true
 
