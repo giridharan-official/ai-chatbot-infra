@@ -113,7 +113,7 @@ jobs:
           docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           
           echo "✅ Images pushed successfully"
-          echo "✅ Latest: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest"
+          echo "✅ latest: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest"
           echo "✅ Tagged: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       - name: Update GitOps repo - Dev
