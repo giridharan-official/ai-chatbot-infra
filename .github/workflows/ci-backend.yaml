@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths: 
-      - ai-chatbot-framework/app/**
+      - ai-chatbot-framework/**
       - .github/workflows/ci-backend.yaml
   pull_request:
     branches: [main, develop]
     paths:
-      - ai-chatbot-framework/app/**
+      - ai-chatbot-framework/**
 
 env:
   AWS_REGION: ap-south-1
@@ -25,7 +25,7 @@ jobs:
       - name: Check if requirements.txt exists
         id: check_requirements
         run: |
-          if [ -f "ai-chatbot-framework/app/requirements.txt" ]; then
+          if [ -f "ai-chatbot-framework/requirements.txt" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -36,26 +36,26 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-          cache-dependency-path: ai-chatbot-framework/app/requirements.txt
+          cache-dependency-path: ai-chatbot-framework/requirements.txt
       
       - name: Install dependencies
         if: steps.check_requirements.outputs.exists == 'true'
         run: |
-          cd ai-chatbot-framework/app
+          cd ai-chatbot-framework
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
       - name: Run tests
         if: steps.check_requirements.outputs.exists == 'true'
         run: |
-          cd ai-chatbot-framework/app
+          cd ai-chatbot-framework
           pytest --cov=. --cov-report=xml 2>/dev/null || true
 
       - name: Upload coverage
         if: steps.check_requirements.outputs.exists == 'true' && always()
         uses: codecov/codecov-action@v3
         with:
-          file: ./ai-chatbot-framework/app/coverage.xml
+          file: ./ai-chatbot-framework/coverage.xml
           flags: backend
           fail_ci_if_error: false
 
@@ -73,13 +73,9 @@ jobs:
       - name: Check if Dockerfile exists
         id: check_dockerfile
         run: |
-          if [ -f "ai-chatbot-framework/app/Dockerfile" ] || [ -f "ai-chatbot-framework/Dockerfile" ]; then
+          if [ -f "ai-chatbot-framework/Dockerfile" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            if [ -f "ai-chatbot-framework/app/Dockerfile" ]; then
-              echo "path=ai-chatbot-framework/app" >> $GITHUB_OUTPUT
-            else
-              echo "path=ai-chatbot-framework" >> $GITHUB_OUTPUT
-            fi
+            echo "path=ai-chatbot-framework" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
@@ -103,7 +99,7 @@ jobs:
           docker build \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-            ${{ steps.check_dockerfile.outputs.path }}
+            ai-chatbot-framework
           
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
