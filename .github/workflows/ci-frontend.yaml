@@ -13,7 +13,6 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  REGISTRY: ${{ steps.login_ecr.outputs.registry }}
   IMAGE_NAME: frontend
 
 jobs:
@@ -38,7 +37,7 @@ jobs:
           cache: npm
           cache-dependency-path: ai-chatbot-framework/frontend/package-lock.json
 
-      - name: Install and test
+      - name: Install, test and build
         if: steps.check_package.outputs.exists == 'true'
         run: |
           cd ai-chatbot-framework/frontend
@@ -68,8 +67,10 @@ jobs:
       - name: Check if Dockerfile exists
         id: check_dockerfile
         run: |
-          if [ -f "ai-chatbot-framework/frontend/Dockerfile" ] || [ -f "ai-chatbot-framework/frontend/dev.Dockerfile" ]; then
+          if [ -f "ai-chatbot-framework/frontend/Dockerfile" ] || \
+             [ -f "ai-chatbot-framework/frontend/dev.Dockerfile" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
+            echo "path=ai-chatbot-framework/frontend" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
@@ -83,22 +84,34 @@ jobs:
 
       - name: Login to Amazon ECR
         if: steps.check_dockerfile.outputs.exists == 'true'
-        uses: aws-actions/amazon-ecr-login@v1
+        id: login_ecr
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+            docker login --username AWS --password-stdin \
+            235494787667.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-      - name: Build, tag, and push image
+          echo "registry=235494787667.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
+          echo "✅ Logged in to Amazon ECR"
+
+      - name: Build Docker image
         if: steps.check_dockerfile.outputs.exists == 'true'
-        env:
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-            ai-chatbot-framework/frontend/
-          
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          
-          echo "✅ Image pushed: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+            -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ steps.check_dockerfile.outputs.path }}
+
+          echo "✅ Docker image built successfully"
+
+      - name: Push image to ECR
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+          echo "✅ Images pushed successfully"
+          echo "✅ Latest: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest"
+          echo "✅ Tagged: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       - name: Update GitOps repo - Dev
         if: steps.check_dockerfile.outputs.exists == 'true'
@@ -108,17 +121,16 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          
+
           git clone https://x-access-token:${GITHUB_TOKEN}@github.com/giridharan-official/ai-chatbot-infra.git gitops-temp
           cd gitops-temp
-          
-          # Update dev environment
+
           sed -i "s|tag:.*frontend.*|tag: ${IMAGE_TAG}|g" gitops/dev/values.yaml
           sed -i "s|tag: latest|tag: ${IMAGE_TAG}|g" gitops/dev/values.yaml
-          
+
           git add gitops/dev/values.yaml
           git commit -m "chore: update frontend image tag to ${IMAGE_TAG} (dev)" || true
           git push origin main || true
-          
+
           cd ..
           rm -rf gitops-temp
