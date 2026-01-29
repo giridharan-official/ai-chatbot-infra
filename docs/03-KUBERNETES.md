@@ -1,10 +1,5 @@
 # Part 3: Kubernetes Infrastructure (EKS)
 
-**Document Version**: 1.0  
-**Last Updated**: January 29, 2026  
-**Audience**: DevOps Engineers, Platform Engineers, Kubernetes Administrators
-
----
 
 ## Executive Summary
 

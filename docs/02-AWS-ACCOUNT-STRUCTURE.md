@@ -1,11 +1,5 @@
 # Part 2: AWS Account Structure & Security
 
-**Document Version**: 1.0  
-**Last Updated**: January 29, 2026  
-**Audience**: AWS Architects, Security Engineers, DevOps Teams
-
----
-
 ## Executive Summary
 
 This document outlines a production-grade AWS account structure for deploying the AI Chatbot Framework with strong security isolation, centralized logging, and governance controls.
