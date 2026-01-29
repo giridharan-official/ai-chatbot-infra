@@ -96,10 +96,10 @@ jobs:
           echo "registry=235494787667.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
           echo "✅ Successfully logged in to ECR"
 
-      - name: Build Docker image
+      - name: Build Docker image (no cache)
         if: steps.check_dockerfile.outputs.exists == 'true'
         run: |
-          docker build \
+          docker build --no-cache \
             -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest \
             -t ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             ${{ steps.check_dockerfile.outputs.path }}
@@ -112,7 +112,9 @@ jobs:
           docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           
-          echo "✅ Image pushed: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "✅ Images pushed successfully"
+          echo "✅ Latest: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:latest"
+          echo "✅ Tagged: ${{ steps.login_ecr.outputs.registry }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       - name: Update GitOps repo - Dev
         if: steps.check_dockerfile.outputs.exists == 'true'
