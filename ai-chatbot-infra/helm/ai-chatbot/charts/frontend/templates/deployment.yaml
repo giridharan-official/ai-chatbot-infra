@@ -1,0 +1,45 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frontend.fullname" . }}
+  labels:
+    app: {{ include "frontend.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "frontend.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "frontend.name" . }}
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.livenessPath }}
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.health.livenessInitialDelay }}
+            periodSeconds: {{ .Values.health.livenessPeriod }}
+            timeoutSeconds: {{ .Values.health.timeout }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.readinessPath }}
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: {{ .Values.health.readinessInitialDelay }}
+            periodSeconds: {{ .Values.health.readinessPeriod }}
+            timeoutSeconds: {{ .Values.health.timeout }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}

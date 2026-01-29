@@ -1,0 +1,21 @@
+enabled: true
+
+image:
+  repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/worker
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+nodeSelector:
+  workload: general
+
+imagePullSecrets: []

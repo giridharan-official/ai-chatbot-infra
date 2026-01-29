@@ -1,0 +1,11 @@
+{{- if or .Values.mongodb.enabled .Values.externalMongo.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-mongodb-config
+data:
+  MONGODB_HOST: {{ ternary (printf "%s-mongodb" .Release.Name) .Values.externalMongo.host .Values.mongodb.enabled | quote }}
+  MONGODB_PORT: {{ ternary "27017" (toString .Values.externalMongo.port) .Values.mongodb.enabled | quote }}
+  MONGODB_DATABASE: {{ ternary .Values.mongodb.auth.database .Values.externalMongo.database .Values.mongodb.enabled | quote }}
+  MONGODB_USERNAME: {{ ternary .Values.mongodb.auth.username .Values.externalMongo.username .Values.mongodb.enabled | quote }}
+{{- end }}

@@ -1,0 +1,13 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ml.fullname" . }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ include "ml.name" . }}
+  ports:
+    - port: {{ .Values.containerPort }}
+      targetPort: {{ .Values.containerPort }}
+{{- end }}

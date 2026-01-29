@@ -1,0 +1,34 @@
+enabled: true
+
+image:
+  repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 3000
+
+containerPort: 3000
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "250m"
+    memory: "512Mi"
+
+health:
+  livenessPath: /
+  readinessPath: /
+  livenessInitialDelay: 20
+  readinessInitialDelay: 5
+  livenessPeriod: 15
+  readinessPeriod: 5
+  timeout: 2
+  failureThreshold: 3
+
+imagePullSecrets: []
