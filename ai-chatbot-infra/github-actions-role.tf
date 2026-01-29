@@ -1,5 +1,5 @@
-# GitHub Actions OIDC Role - CORRECTED
-# Run this in your AWS account to fix the authentication issue
+# GitHub Actions OIDC Role - CORRECTED VERSION 2
+# This version uses proper variable references instead of hardcoding
 
 terraform {
 
@@ -8,18 +8,24 @@ terraform {
 
 
 
-# Create OIDC Provider for GitHub Actions (if not exists)
+# Create OIDC Provider for GitHub Actions
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1", "1c58a3a8518e8759bf075b76b750d4f2df264fcd"]
 
   tags = {
     Name = "github-actions-oidc"
   }
 }
 
-# IAM Role for GitHub Actions - CORRECTED TRUST POLICY
+# Local variables for easier reference
+locals {
+  github_org  = "BhuvaneshSSB"
+  github_repo = "ai-chatbot-code-infra"
+}
+
+# IAM Role for GitHub Actions - Using proper variable reference
 resource "aws_iam_role" "github_actions" {
   name = "GitHubActionsRole"
 
@@ -29,6 +35,7 @@ resource "aws_iam_role" "github_actions" {
       {
         Effect = "Allow"
         Principal = {
+          # Use the actual OIDC provider ARN, not a string
           Federated = aws_iam_openid_connect_provider.github.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
@@ -37,7 +44,7 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:BhuvaneshSSB/ai-chatbot-code-infra:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${local.github_org}/${local.github_repo}:*"
           }
         }
       }
@@ -49,7 +56,7 @@ resource "aws_iam_role" "github_actions" {
   }
 }
 
-# Policy for ECR Access
+# Policy for ECR Access - Split into 2 statements for clarity
 resource "aws_iam_role_policy" "github_actions_ecr" {
   name = "github-actions-ecr-policy"
   role = aws_iam_role.github_actions.id
@@ -104,4 +111,10 @@ output "aws_account_id" {
 output "oidc_provider_arn" {
   value       = aws_iam_openid_connect_provider.github.arn
   description = "ARN of GitHub OIDC provider"
+}
+
+output "trust_policy" {
+  value       = aws_iam_role.github_actions.assume_role_policy
+  description = "Trust policy for reference"
+  sensitive   = false
 }
