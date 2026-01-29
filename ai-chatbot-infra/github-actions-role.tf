@@ -21,7 +21,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 
 # Local variables for easier reference
 locals {
-  github_org  = "BhuvaneshSSB"
+  github_org  = "giridharan-official"
   github_repo = "ai-chatbot-code-infra"
 }
 

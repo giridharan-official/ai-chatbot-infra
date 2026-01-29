@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/BhuvaneshSSB/ai-chatbot-code-infra.git
+    repoURL: https://github.com/giridharan-official/ai-chatbot-code-infra.git
     targetRevision: main
     path: gitops/app-of-apps
   destination:
@@ -26,7 +26,7 @@ metadata:
   namespace: argocd
 spec:
   sourceRepos:
-    - 'https://github.com/BhuvaneshSSB/*'
+    - 'https://github.com/giridharan-official/*'
   destinations:
     - namespace: 'dev'
       server: 'https://kubernetes.default.svc'
