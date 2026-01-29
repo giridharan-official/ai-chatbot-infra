@@ -10,7 +10,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  REGISTRY: 235494787667.dkr.ecr.ap-south-1.amazonaws.com
+  REGISTRY: ${{ steps.login_ecr.outputs.registry }}
   IMAGE_NAME: frontend
 
 jobs:

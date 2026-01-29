@@ -13,7 +13,6 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  REGISTRY: 235494787667.dkr.ecr.ap-south-1.amazonaws.com
   IMAGE_NAME: backend
 
 jobs:
@@ -89,22 +88,24 @@ jobs:
 
       - name: Login to Amazon ECR
         if: steps.check_dockerfile.outputs.exists == 'true'
+        id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push image
         if: steps.check_dockerfile.outputs.exists == 'true'
         env:
+          REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-            ai-chatbot-framework
+            -t $REGISTRY/${{ env.IMAGE_NAME }}:latest \
+            -t $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG \
+            ${{ steps.check_dockerfile.outputs.path }}
           
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
+          docker push $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG
           
-          echo "✅ Image pushed: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+          echo "✅ Image pushed: $REGISTRY/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
 
       - name: Update GitOps repo - Dev
         if: steps.check_dockerfile.outputs.exists == 'true'
