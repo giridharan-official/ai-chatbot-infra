@@ -5,7 +5,7 @@ global:
 backend:
   enabled: true
   image:
-    repository: your-ecr-repo/backend
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/backend 
     tag: v1.0.0-staging
     pullPolicy: IfNotPresent
   replicaCount: 2
@@ -50,7 +50,7 @@ backend:
 frontend:
   enabled: true
   image:
-    repository: your-ecr-repo/frontend
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/frontend
     tag: v1.0.0-staging
     pullPolicy: IfNotPresent
   replicaCount: 2
@@ -78,7 +78,7 @@ frontend:
 ml:
   enabled: true
   image:
-    repository: your-ecr-repo/ml
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/ml
     tag: v1.0.0-staging
     pullPolicy: IfNotPresent
   replicaCount: 1
@@ -113,7 +113,7 @@ ml:
 worker:
   enabled: true
   image:
-    repository: your-ecr-repo/worker
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/worker
     tag: v1.0.0-staging
     pullPolicy: IfNotPresent
   replicaCount: 1

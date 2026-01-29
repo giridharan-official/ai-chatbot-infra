@@ -5,8 +5,8 @@ global:
 backend:
   enabled: true
   image:
-    repository: your-ecr-repo/backend
-    tag: v1.0.0-staging
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/backend 
+    tag: latest
     pullPolicy: IfNotPresent
   replicaCount: 2
   service:
@@ -38,20 +38,13 @@ backend:
     enabled: true
     name: backend-secrets
   externalMongo:
-    enabled: true
-    host: mongodb-staging.example.com
-    port: 27017
-    database: chatbotdb
-    username: chatbot
-    passwordSecret:
-      name: mongodb-secrets
-      key: password
+    enabled: false
 
 frontend:
   enabled: true
   image:
-    repository: your-ecr-repo/frontend
-    tag: v1.0.0-staging
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/frontend
+    tag: latest
     pullPolicy: IfNotPresent
   replicaCount: 2
   service:
@@ -78,8 +71,8 @@ frontend:
 ml:
   enabled: true
   image:
-    repository: your-ecr-repo/ml
-    tag: v1.0.0-staging
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/ml
+    tag: latest
     pullPolicy: IfNotPresent
   replicaCount: 1
   containerPort: 9000
@@ -113,8 +106,8 @@ ml:
 worker:
   enabled: true
   image:
-    repository: your-ecr-repo/worker
-    tag: v1.0.0-staging
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/worker
+    tag: latest
     pullPolicy: IfNotPresent
   replicaCount: 1
   resources:
@@ -148,7 +141,7 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:YOUR_ACCOUNT_ID:certificate/YOUR_CERT_ID_STAGING
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:235494787667:certificate/REPLACE_WITH_STAGING_CERT_ID
   hosts:
     - host: chatbot-staging.example.com
       paths:

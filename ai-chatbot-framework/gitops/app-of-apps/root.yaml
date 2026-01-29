@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/<your-org>/ai-chatbot-framework.git
+    repoURL: https://github.com/giridharan-official/ai-chatbot-infra.git
     targetRevision: main
     path: gitops
 

@@ -1,7 +1,7 @@
 enabled: true
 
 image:
-  repository: your-ecr-repo/backend
+  repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/backend 
   tag: latest
   pullPolicy: IfNotPresent
 

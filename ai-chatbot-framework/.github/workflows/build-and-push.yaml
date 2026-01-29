@@ -12,9 +12,9 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY_BACKEND: your-ecr-repo/backend
-  ECR_REPOSITORY_FRONTEND: your-ecr-repo/frontend
-  ECR_REPOSITORY_WORKER: your-ecr-repo/worker
+  ECR_REPOSITORY_BACKEND: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/backend 
+  ECR_REPOSITORY_FRONTEND: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/frontend
+  ECR_REPOSITORY_WORKER: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/worker
 
 jobs:
   build:

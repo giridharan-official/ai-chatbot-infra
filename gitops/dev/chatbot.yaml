@@ -6,10 +6,10 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  project: dev
+  project: default
 
   source:
-    repoURL: https://github.com/<your-org>/ai-chatbot-framework.git
+    repoURL: https://github.com/giridharan-official/ai-chatbot-infra.git
     targetRevision: main
     path: helm/ai-chatbot
     helm:

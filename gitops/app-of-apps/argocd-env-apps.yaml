@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
+    description: "Development environment - Auto-syncs on every push"
 spec:
   project: default
   source:
@@ -29,6 +30,7 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -37,6 +39,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+    description: "Staging environment - Auto-syncs, keep old resources"
 spec:
   project: default
   source:
@@ -50,6 +53,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: staging
   syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
     retry:
@@ -58,6 +64,7 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -66,6 +73,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "3"
+    description: "Production environment - Manual sync only (requires approval)"
 spec:
   project: default
   source:
@@ -79,6 +87,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: prod
   syncPolicy:
+    manual: {}
     syncOptions:
       - CreateNamespace=true
     retry:

@@ -6,7 +6,7 @@ backend:
   enabled: true
 
   image:
-    repository: your-ecr-repo/backend
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/backend 
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -60,7 +60,7 @@ frontend:
   enabled: true
 
   image:
-    repository: your-ecr-repo/frontend
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/frontend
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -98,7 +98,7 @@ ml:
   enabled: true
 
   image:
-    repository: your-ecr-repo/ml
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/ml
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -145,7 +145,7 @@ worker:
   enabled: true
 
   image:
-    repository: your-ecr-repo/worker
+    repository: 235494787667.dkr.ecr.ap-south-1.amazonaws.com/worker
     tag: latest
     pullPolicy: IfNotPresent
 
