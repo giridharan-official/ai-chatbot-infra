@@ -22,7 +22,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 # Local variables for easier reference
 locals {
   github_org  = "giridharan-official"
-  github_repo = "ai-chatbot-code-infra"
+  github_repo = "ai-chatbot-infra"
 }
 
 # IAM Role for GitHub Actions - Using proper variable reference
